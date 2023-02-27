@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link  rel="stylesheet" href="CSS/flappybird.css"  type="text/css"> 
+  <script src="https://fe.it-academy.by/JQ/jquery.js"></script>
+  <title>Flappy bird</title>
+</head>
+<body>  
+  <img id="fonbird1" class="birds" src="img/fonbird1.png">  
+  <img id="fonbird2" class="birds" src="img/fonbird2.png">
+  <img id="fonbird3" class="birds" src="img/fonbird3.png">
+  <img id="fonbird4" class="birds" src="img/fonbird4.png">
+  <div id="buttonstart">
+    <button id="start" onclick="start()">играть</button>
+  </div>
+  <div id="records">
+    <button id="refreshRecords" onclick="recordsView()">рекорды</button>
+  </div>
+  <div id="iconclose">
+    <button id="close" onclick="closeRecords()">
+      <img src="img/iconclose.png">
+    </button>
+  </div>
+  <div><p id="game_over">GAME OVER</p></div>
+  <button id="restart" onclick="restart()"><img src="img/restart.png"></button>
+  <canvas id="canvas" width="500" height="512"></canvas>
+  
+
+  <div id="nameWinner">
+    Вы попали в таблицу рекордов, введите ваше имя<br>
+    <input type='text' id='IName'>
+    <input id="sendRecords" type='button' value='отправить' onclick='addRecords ()'>
+  </div>
+  <div id='TOR'></div>
+  <script src="js/flappybird.js"></script>
+</body>
+</html>

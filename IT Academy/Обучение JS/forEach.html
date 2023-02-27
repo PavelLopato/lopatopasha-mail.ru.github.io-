@@ -1,0 +1,16 @@
+<script>
+function myForEach(callback) {
+    for (let i = 0; i < this.length; i++) {
+        callback(this [i], i, this);
+    }
+}
+
+function callback(element) {
+    console.log(element); 
+}
+
+const arr = [2, 4, 6, 8, 10];
+arr.myForEach = myForEach;
+arr.myForEach(callback);
+</script>
+    

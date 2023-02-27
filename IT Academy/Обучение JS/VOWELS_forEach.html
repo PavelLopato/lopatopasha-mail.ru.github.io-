@@ -1,0 +1,40 @@
+<head></head>
+<body>
+  <script>
+    "use strict"
+
+    function HashStorageFunc () {
+      this=self;
+
+      var storage={};
+
+      self.add=function addValue (key,value) {
+        storage[key]=value;
+      }
+
+      self.get= function getValue (key) {
+        if (key in storage)
+          return key + value;
+      }
+
+      self.delete = function deleteValue (key) {
+        delete storage [key];
+      }
+
+      self.keys = function getKeys () {
+        var res="";
+        for ( var K in storage )
+          res += getValue (K);
+        return res;
+      }
+    } 
+
+    
+
+  </script>
+</body>    
+    
+    
+    
+    
+    

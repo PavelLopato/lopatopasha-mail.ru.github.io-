@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TENNIS_SVG</title>
+</head>
+<body>
+  <svg id="svg1" width="70" height="20" onclick="start()">
+    <rect width="70" height="20" style="fill:rgba(128, 128, 128, 0.151);stroke-width:2;stroke:rgba(0, 0, 0, 0.603)" />
+    <text x="10" y="15">СТАРТ</text>
+  </svg>
+  <div class="score">
+    <span id='Lr1'>0</span> : <span id='Rr2'>0</span>
+  </div>
+  <svg id="svg" width="600px" height="400px"></svg>
+
+<style>
+
+#svg1 {
+  display: block;
+  margin: 0 auto;
+  border-radius: 3px;
+  margin-top: 20px;
+  cursor: pointer;
+}
+
+#svg1:hover {
+  background-color: rgba(0, 0, 0, 0.26);
+}
+
+.score {
+  font-size: 40px;
+  font-weight: bold;
+  text-align: center;
+}
+
+#svg {
+  display: block;
+  margin: 0 auto;
+}
+</style>
+
+<script>
+
+"use strict";
+
+var RAF =
+  // находим, какой метод доступен
+  window.requestAnimationFrame ||
+  window.webkitRequestAnimationFrame ||
+  window.mozRequestAnimationFrame ||
+  window.oRequestAnimationFrame ||
+  window.msRequestAnimationFrame ||
+  // ни один не доступен
+  // будем работать просто по таймеру
+
+  function(callback) { 
+    window.setTimeout(callback, 1000 / 60); 
+  }
+
+const W = 600;
+const H = 400;
+const W_BALL = 20;
+const H_BALL = 20;
+const X_BALL = W/2;
+const Y_BALL = H/2;
+const R_BALL = W_BALL/2;
+const W_BRACKET = 10;
+const H_BRACKET = 80;
+
+
+var svg = document.getElementById('svg');
+
+// Создаем игровое поле
+var field = {
+  width: W,
+  height: H,
+  color: 'yellow',
+
+  init: function() {
+    var field = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    field.setAttribute('stroke','black');
+    field.setAttribute('stroke-width',1);
+    field.setAttribute('fill',this.color);
+    field.setAttribute('width',this.width);
+    field.setAttribute('height',this.height);
+    svg.appendChild(field)
+  }
+}
+field.init();
+
+// Создаем мяч
+var ball = {
+  posX: X_BALL,
+  posY: Y_BALL,
+  radius: R_BALL,
+  speedX: 0,
+  speedY: 0,
+  color: 'red',
+
+  init: function() {
+    var ball = document.createElementNS('http://www.w3.org/2000/svg','circle');    
+    ball.setAttribute('fill',this.color);
+    ball.setAttribute('cx',this.posX);
+    ball.setAttribute('cy',this.posY);
+    ball.setAttribute('r',this.radius);
+    ball.id = 'ball';
+    svg.appendChild(ball);
+  },
+
+  move: function() {
+    var ball = document.getElementById('ball');
+    ball.setAttribute('cx',this.posX);
+    ball.setAttribute('cy',this.posY);
+  },
+
+  run: function() {
+    var numPool = [-3, 3];
+    var rand = numPool[Math.floor(Math.random() * numPool.length)];
+    var rand1 = numPool[Math.floor(Math.random() * numPool.length)];
+    this.posX = W/2-W_BALL/2;
+    this.posY = H/2-H_BALL/2;
+    this.speedX = rand;
+    this.speedY = rand1;
+  }
+}
+ball.init();
+
+// Создаем левого игрока
+var LRacket = {
+  width: W_BRACKET,
+  height: H_BRACKET,
+  posX: 0,
+  posY: H/2-H_BRACKET/2,
+  speed: 0,
+  color: 'green',
+  score: 0,
+
+  init: function(){
+    var LRacket = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    LRacket.setAttribute('stroke','black');
+    LRacket.setAttribute('stroke-width',1);
+    LRacket.setAttribute('fill',this.color);
+    LRacket.setAttribute('width',this.width);
+    LRacket.setAttribute('height',this.height);
+    LRacket.setAttribute('x',this.posX);
+    LRacket.setAttribute('y',this.posY);
+    LRacket.id = 'LRacket';
+    svg.appendChild(LRacket);
+  },
+
+  move: function() {
+    var LRacket = document.getElementById('LRacket');
+    LRacket.setAttribute('x',this.posX);
+    LRacket.setAttribute('y',this.posY);
+  },
+
+  updateScore:  function() {
+    var counter = document.getElementById('Lr1');
+    counter.innerHTML = this.score;
+  }
+}
+LRacket.init();
+
+// Создаем правого игрока
+var RRacket= {
+  width: W_BRACKET,
+  height: H_BRACKET,
+  posX: W-W_BRACKET,
+  posY: H/2-H_BRACKET/2,
+  speed: 0,
+  color: 'blue',
+  score: 0,
+
+  init: function() {
+    var RRacket = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    RRacket.setAttribute('stroke','black');
+    RRacket.setAttribute('stroke-width',1);
+    RRacket.setAttribute('fill',this.color);
+    RRacket.setAttribute('width',this.width);
+    RRacket.setAttribute('height',this.height);
+    RRacket.setAttribute('x',this.posX);
+    RRacket.setAttribute('y',this.posY);
+    RRacket.id = 'RRacket';
+    svg.appendChild(RRacket)
+  },
+
+  move: function() {
+    var RRacket = document.getElementById('RRacket');
+    RRacket.setAttribute('x',this.posX);
+    RRacket.setAttribute('y',this.posY);
+  },
+
+  updateScore:  function() {
+    var counter = document.getElementById('Rr2');
+    counter.innerHTML = this.score;
+  }
+}
+RRacket.init();
+
+// Пуск шарика
+function start() {
+  ball.run();
+}
+
+  //движение ракеток
+  document.onkeydown = function(e) {
+    // Shift-вверх
+    if(e.keyCode === 16) {
+      LRacket.speed = -3;  
+    }
+    // Ctrl-вниз
+    if(e.keyCode === 17) {
+      LRacket.speed = 3;
+    }
+    // Up-вверх
+    if(e.keyCode === 38) {
+      RRacket.speed = -3;
+    }
+    // Down-вниз
+    if(e.keyCode === 40) {
+      RRacket.speed = 3;
+    } 
+  }  
+  
+  document.onkeyup = function(e) {
+    // Shift-вверх
+    if(e.keyCode === 16) {
+      LRacket.speed = 0;
+    }
+    // Ctrl-вниз
+    if(e.keyCode === 17) {
+      LRacket.speed = 0;
+    }
+    // Up-вверх
+    if(e.keyCode === 38) {
+      RRacket.speed = 0;
+    }
+    // Down-вниз
+    if(e.keyCode === 40) {
+      RRacket.speed = 0;
+    } 
+  }
+
+// Отрисовка игрового процесса
+function tick() {
+
+  // Движение ракеток
+  LRacket.posY += LRacket.speed;
+  RRacket.posY += RRacket.speed;
+
+  //вышла ли ракетка за верхний предел поля
+  if (LRacket.posY <= 0) { 
+            LRacket.posY = 0;
+        }
+        if (RRacket.posY <= 0) {
+            RRacket.posY = 0;
+        }
+
+  //вышла ли ракетка за нижний предел поля
+  if ( LRacket.posY+LRacket.height>field.height ) {
+    LRacket.posY=field.height-LRacket.height;
+  }
+  if ( RRacket.posY+RRacket.height>field.height ) {
+    RRacket.posY=field.height-RRacket.height;
+  }
+
+  // Движение шарика
+  ball.posX+=ball.speedX;
+  ball.posY+=ball.speedY;
+
+  // вылетел ли мяч правее стены?
+  if ( ball.posX+ball.radius>field.width ) {
+    ball.speedX=0;
+    ball.speedY=0;
+    ball.posX=field.width-ball.radius;
+    LRacket.score++;
+    LRacket.updateScore();
+  }
+
+  // ударился ли мяч о правую ракетку?
+  if ( ball.posX+ball.radius >= RRacket.posX && ball.posX <= RRacket.posX + RRacket.width ) {
+    if ( ball.posY >= RRacket.posY && ball.posY <= RRacket.posY + RRacket.height ) {
+    ball.speedX=-ball.speedX;
+    }
+  }
+
+  // вылетел ли мяч левее стены?
+  if ( ball.posX-ball.radius<0 ) {
+    ball.speedX=0;
+    ball.speedY=0;
+    ball.posX=0+ball.radius;
+    RRacket.score++;
+    RRacket.updateScore();
+  }
+
+  // ударился ли мяч о левую ракетку?
+  if ( ball.posX-ball.radius <= LRacket.posX+LRacket.width) {
+    if ( ball.posY+ball.radius >= LRacket.posY && ball.posY-ball.radius <= LRacket.posY + LRacket.height ) {
+    ball.speedX=-ball.speedX;
+    }
+  } 
+
+  // вылетел ли мяч ниже пола?
+  if ( ball.posY+ball.radius>field.height ) {
+    ball.speedY=-ball.speedY;
+    ball.posY=field.height-ball.radius;
+  }
+
+  // вылетел ли мяч выше пола?
+  if ( ball.posY-ball.radius<0) {
+    ball.speedY=-ball.speedY;
+    ball.posY=0+ball.radius;
+  }
+
+  ball.move();
+  LRacket.move();
+  RRacket.move();
+
+  RAF(tick);
+}
+tick();
+</script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+
+    <form method=post action='https://fe.it-academy.by/TestForm.php' name='f1'></form><br><br><hr>
+    <form method=post action='https://fe.it-academy.by/TestForm.php' name='f2'></form>
+
+<script>
+
+"use script";
+ 
+var formDef1 =
+  [
+    { label: 'Название сайта:', kind: 'longtext', name: 'sitename' },
+    { label: 'URL сайта:', kind: 'longtext', name: 'siteurl' },
+    { label: 'Посетителей в сутки:', kind: 'number', name: 'visitors' },
+    { label: 'E-mail для связи:', kind: 'shorttext', name: 'email' },
+    {
+      label: 'Рубрика каталога:', kind: 'combo', name: 'division',
+      variants: [{ text: 'здоровье', value: 1 }, { text: 'домашний уют', value: 2 }, { text: 'бытовая техника', value: 3 }]
+    },
+    {
+      label: 'Размещение:', kind: 'radio', name: 'payment',
+      variants: [{ text: 'бесплатное', value: 1 }, { text: 'платное', value: 2 }, { text: 'VIP', value: 3 }]
+    },
+    { label: 'Разрешить отзывы:', kind: 'check', name: 'votes' },
+    { label: 'Описание сайта:', kind: 'memo', name: 'description' },
+    { label: 'Опубликовать:', kind: 'submit' },
+  ];
+ 
+var formDef2 =
+  [
+    { label: 'Фамилия:', kind: 'longtext', name: 'lastname' },
+    { label: 'Имя:', kind: 'longtext', name: 'firstname' },
+    { label: 'Отчество:', kind: 'longtext', name: 'secondname' },
+    { label: 'Возраст:', kind: 'number', name: 'age' },
+    { label: 'Зарегистрироваться:', kind: 'submit' },
+  ];
+ 
+ 
+function buildForm(fD, fE) {
+
+  fD.forEach (elem => {
+    var fL=document.createElement('label');
+    fL.innerHTML=elem.label;
+    fE.appendChild(fL);
+    if (elem.kind == 'longtext') {
+      var tag = document.createElement('input');
+      tag.type = 'text';      
+      fE.appendChild(tag);
+      var carry=document.createElement('br');
+      fE.appendChild(carry);      
+    };
+    if (elem.kind == 'number') {
+      var tag = document.createElement('input');
+      tag.type = 'number';      
+      fE.appendChild(tag);
+      var carry=document.createElement('br');
+      fE.appendChild(carry);
+    };
+    if (elem.kind == 'shorttext') {
+      var tag = document.createElement('input');
+      tag.type = 'text'; 
+      fE.appendChild(tag);
+      var carry=document.createElement('br');
+      fE.appendChild(carry);
+    };
+    if (elem.kind == 'combo') {
+      var tag = document.createElement('select');
+      fE.appendChild(tag);
+      var carry=document.createElement('br');
+      fE.appendChild(carry);
+      elem.variants.forEach(elemLevel2 => {
+        var tagOption = document.createElement('option');
+        tagOption.setAttribute('value', elemLevel2.value);
+        tagOption.textContent = elemLevel2.text;
+        tag.appendChild(tagOption);
+      });
+    };
+   if (elem.kind == 'radio') {
+        var tag =  document.createElement('input');
+        elem.variants.forEach(elemLevel2 => {        
+        tag = document.createElement('input');
+        tag.type = 'radio';
+        fE.appendChild(tag);
+        tag.name=elem.name;
+        tag.setAttribute('value', elemLevel2.value);    
+        var newSpanRadio=document.createElement('span');
+        newSpanRadio.textContent=elemLevel2.text;        
+        fE.appendChild(newSpanRadio);
+        var carry=document.createElement('br');
+        fE.appendChild(carry);
+      });
+    }; 
+    if (elem.kind == 'check') {
+      var tag = document.createElement('input');
+      tag.type = 'checkbox'; 
+      fE.appendChild(tag);
+      var carry=document.createElement('br');
+      fE.appendChild(carry);
+    };
+    if (elem.kind == 'memo') {
+      var tag = document.createElement('textarea');
+      tag.style.cssText = 'width: 400px; height: 50px';
+      fE.appendChild(tag);
+      var carry=document.createElement('br');
+      fE.appendChild(carry);
+    };
+    if (elem.kind == 'submit') {
+      var tag = document.createElement('input');
+      tag.type = 'submit';
+      tag.value =elem.label;
+      fE.appendChild(tag);
+      var carry=document.createElement('br');
+      fE.appendChild(carry);
+      fE.removeChild(fL);
+    };
+     tag.name=elem.name;   
+  });
+}
+
+buildForm(formDef1, document.forms.f1);
+buildForm(formDef2, document.forms.f2);
+ 
+</script>

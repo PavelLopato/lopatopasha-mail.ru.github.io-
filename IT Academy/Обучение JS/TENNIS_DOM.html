@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <title>TENNIS_DOM</title>
+</head>
+<body>
+  <button id="start" onclick="start()">СТАРТ!</button>
+  <div class="score">
+    <span id='Lr1'>0</span> : <span id='Rr2'>0</span>
+  </div>
+
+</body>
+</html>
+
+<style>
+    #start {
+  width: 100px;
+  display: block;
+  margin: 0 auto;
+}
+
+#field {
+  position: relative;
+  background-color:yellow;
+  border: 1px solid black;
+  margin: 0 auto;
+}
+
+#LRacket {
+  position: absolute;
+  background-color: green;
+}
+
+#RRacket {
+  position: absolute; 
+  background-color: blue;
+}
+
+#ball {
+  position: absolute;
+  border-radius: 50%;
+  background-color: red;
+}
+
+.score {
+  font-size: 40px;
+  font-weight: bold;
+  text-align: center;
+}
+</style>
+
+<script>
+    'use strict'
+
+    const W = 600;
+    const H = 400;
+    const W_BALL = 20;
+    const H_BALL = 20;
+    const W_RACKET = 10;
+    const H_RACKET = 80;
+
+    var IDField = document.createElement('div'); //создаем игровое поле
+    IDField.id = 'field';
+    document.body.appendChild(IDField);
+
+    var field = {
+        width: W,
+        height: H,
+
+        update: function() {
+            var field = document.getElementById('field');
+            field.style.width = Math.round(this.width) + 'px';
+            field.style.height = Math.round(this.height) + 'px';
+        }
+    }   
+
+    let IDBall = document.createElement ('div'); //создаем мяч
+        IDBall.id = 'ball';
+        IDField.appendChild (IDBall);
+
+    let ball ={
+        width: W_BALL,
+        height: H_BALL,
+        posX: W/2 - W_BALL/2,
+        posY: H/2 - H_BALL/2,
+        speedX: 0,
+        speedY: 0,
+        
+        update: function() {
+            var ball = document.getElementById('ball');
+            ball.style.width = Math.round (this.width) + 'px';
+            ball.style.height = Math.round (this.height) + 'px';
+            ball.style.left = Math.round (this.posX) + 'px';
+            ball.style.top = Math.round (this.posY) + 'px';
+
+        },        
+
+        run: function () {
+            var numPool = [-5, 5];
+            var rand = numPool[Math.floor(Math.random() * numPool.length)];
+            var rand1 = numPool[Math.floor(Math.random() * numPool.length)];
+            this.posX = W/2-W_BALL/2;
+            this.posY = H/2-H_BALL/2;
+            this.speedX = rand;
+            this.speedY = rand1;
+        }
+    } 
+
+    var IDLRacket = document.createElement('div'); // создаем левую ракетку
+    IDLRacket.id = 'LRacket';
+    IDField.appendChild(IDLRacket);
+
+    var LRacket = {
+        width: W_RACKET,
+        height: H_RACKET,
+        posX: 0,
+        posY: H/2 - H_RACKET/2,
+        speed: 0,
+        score: 0,
+
+        update: function(){
+            var LRacket = document.getElementById('LRacket');
+            LRacket.style.left = Math.round(this.posX) + 'px';
+            LRacket.style.top = Math.round(this.posY) + 'px';
+            LRacket.style.width = Math.round(this.width) + 'px';
+            LRacket.style.height = Math.round(this.height) + 'px';
+        },
+        
+        updateScore:  function() {
+            var counter = document.getElementById('Lr1');
+            counter.innerHTML = this.score;
+        }
+    }
+
+    let IDRRacket = document.createElement ('div'); // создаем правую ракетку
+    IDRRacket.id = 'RRacket';
+    IDField.appendChild (IDRRacket);
+
+    var RRacket = {
+        width: W_RACKET,
+        height: H_RACKET,
+        posX: W-W_RACKET,
+        posY: H/2 - H_RACKET/2,
+        speed: 0,
+        score: 0,
+
+        update: function (){
+            var RRacket = document.getElementById('RRacket');
+            RRacket.style.left = Math.round (this.posX) + 'px';
+            RRacket.style.top = Math.round (this.posY) + 'px';
+            RRacket.style.width = Math.round (this.width) + 'px';
+            RRacket.style.height = Math.round (this.height) + 'px';
+        },
+        
+        updateScore:  function() {
+            var counter = document.getElementById('Rr2');
+            counter.innerHTML = this.score;
+        }
+    }
+
+    function start (){   //пуск мяча
+        ball.run();
+    }
+
+    document.onkeydown = function(e) {
+        if (e.keyCode === 16) {   // вверх - shift
+                LRacket.speed = -10;
+            }
+        if (e.keyCode === 17) {   // ввниз - ctrl
+            LRacket.speed = 10;
+        }
+        if (e.keyCode === 38) {   // вверх - up
+            RRacket.speed = -10;
+        }
+        if (e.keyCode === 40) {   // вниз - down
+            RRacket.speed = 10;
+        }
+    }
+    document.onkeyup = function (e) {
+        if (e.keyCode === 16) {  
+            LRacket.speed = 0;
+        }
+        if (e.keyCode === 17) {   
+            LRacket.speed = 0;
+        }
+        if (e.keyCode === 38) {   
+            RRacket.speed = 0;
+        }
+        if (e.keyCode === 40) {   
+            RRacket.speed = 0;
+        }
+    }
+
+    function tick(){
+
+        ball.posX += ball.speedX; //движение мяча
+        ball.posY += ball.speedY;
+
+        LRacket.posY += LRacket.speed; // движение ракеток
+        RRacket.posY += RRacket.speed;     
+
+        if (LRacket.posY <= 0) { //вышла ли ракетка за верхний предел поля
+            LRacket.posY = 0;
+        }
+        if (RRacket.posY <= 0) {
+            RRacket.posY = 0;
+        }
+
+        if (LRacket.posY + LRacket.height > field.height) { //вышла ли ракетка за нижний предел поля
+            LRacket.posY = field.height - LRacket.height;
+        }
+        if (RRacket.posY + RRacket.height > field.height) { 
+            RRacket.posY = field.height - RRacket.height;
+        }
+
+        if ( ball.posX+ball.width > field.width ) {  //вылетел ли мяч правее поля
+            ball.speedX=0;
+            ball.speedY=0;
+            ball.posX=field.width - ball.width;
+            LRacket.score++;
+            LRacket.updateScore();
+        }
+        
+        if ( ball.posX<0 ) { //вылетел ли мяч левее поля
+            ball.speedX=0;
+            ball.speedY=0;
+            ball.posX=0;
+            RRacket.score++;
+            RRacket.updateScore();
+        }
+
+        //ударился ли мяч в правую ракетку
+        if (ball.posX+ball.width == RRacket.posX && ball.posX <= RRacket.posX + RRacket.width) {
+            if (ball.posY >= RRacket.posY && ball.posY <= RRacket.posY + RRacket.height) {
+                ball.speedX=-ball.speedX;
+
+            }
+        }
+
+        if (ball.posX < LRacket.posX+LRacket.width) { // ударился ли мяч о левую ракетку
+            if (ball.posY+ball.height >= LRacket.posY && ball.posY <= LRacket.posY + LRacket.height ) {
+                ball.speedX=-ball.speedX;
+            }
+        }
+        
+        if (ball.posY < 0){ //вылетел ли мяч за верхний предел поля
+            ball.speedY = -ball.speedY;
+            ball.posY = 0;
+        } 
+
+        if (ball.posY + ball.height >= field.height) { //вылетел ли мяч за нижний предел поля
+            ball.speedY =-ball.speedY;
+            ball.posY = field.height - ball.height;
+        }
+
+        ball.update();
+        LRacket.update();
+        RRacket.update();       
+    }
+
+    var game = setInterval(tick,40); // Расставляем все при загрузке страницы
+
+    field.update();
+    ball.update();
+    LRacket.update();
+    RRacket.update(); 
+
+</script>

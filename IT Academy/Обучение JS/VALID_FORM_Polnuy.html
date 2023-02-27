@@ -1,0 +1,485 @@
+<style>
+    span {
+        color: red;
+    }
+</style>
+
+<form name="INFO" method="post"  action="https://fe.it-academy.by/TestForm.php" novalidate>
+
+    <div id="dev">
+        Разработчики: 
+        <input type="text" name="developers" id="developers"> 
+    </div>
+
+    <div id="na">
+    Название сайта: 
+    <input type="text" name="nam" id="nam">
+    </div>
+    
+    <div id="url">
+    URL сайта: 
+    <input type="text" name="URL" id="URL">	
+    </div>
+    
+    <div id="dat">
+    Дата запуска сайта: 
+    <input type="date" name="date" id="date">	
+    </div>
+    
+    <div id="visit">
+    Посетителей в сутки: 
+    <input type="number" name="visitors" id="visitors" value="-1">	
+    </div>
+    
+    <div id="mail">
+    E-mail для связи: 
+    <input type="email" name="email" id="email">	
+    </div>
+    
+    <div id="catal">
+    Рубрика каталога: 
+    <select name="catalog" size="1">
+        <option value="1">здоровье</option>
+        <option value="2">домашний уют</option>
+        <option value="3">бытовая техника</option>                          
+    </select>	
+    </div>
+
+
+    <div id="pric" name="pric">
+    Размещение:	
+    <input type="radio" id="radio11" value="11" name="price">бесплатное
+    <input type="radio" id="radio22" value="22" name="price"> платное
+    <input type="radio" id="radio33" value="33" name="price"> VIP   
+    <span id='paymenterr'></span>  
+    </div>
+    
+    <div id="review">
+    Разрешить отзывы: 
+    <input type="checkbox" name="reviews">	
+    </div>
+
+     
+    <div id="ar"> 
+    Описание сайта:
+    <textarea name="area"></textarea> 
+    </div>
+    <br>
+
+    <input type="submit" value="Опубликовать" name="sub">
+
+</form>
+
+<script>
+    "use strict"
+
+    const formTag = document.forms.INFO;    
+
+    const DevelopersField = formTag.elements.developers;
+    const NamField = formTag.elements.nam;
+    const urlField = formTag.elements.URL;
+    const DateField = formTag.elements.date;
+    const VisitorsField = formTag.elements.visitors;
+    const EmailField = formTag.elements.email;
+    const CatalogField = formTag.elements.catalog;
+    const ReviewsField = formTag.elements.reviews;
+    const AreaField = formTag.elements.area; 
+
+    formTag.addEventListener ('submit', validateInfoForm, false);
+    DevelopersField.addEventListener ('focusout', validateInfoFormDevelopers, true);
+    NamField.addEventListener ('focusout', validateInfoFormNam, true);
+    urlField.addEventListener ('focusout', validateInfoFormurl, true);
+    DateField.addEventListener ('focusout', validateInfoFormDate, true);
+    VisitorsField.addEventListener ('focusout', validateInfoFormVisitors, true);
+    EmailField.addEventListener ('focusout', validateInfoFormEmail, true);
+    CatalogField.addEventListener ('change', validateInfoFormCatalog, true);
+    ReviewsField.addEventListener ('change', validateInfoFormReviews, true);
+    AreaField.addEventListener ('focusout', validateInfoFormArea, true);
+
+
+
+    var form = document.forms.INFO;
+    form.onsubmit = info_submit;
+    for (var _i = 0, _a = Array.from(form.price); _i < _a.length; _i++) {
+        var radio = _a[_i];
+        radio.onchange = price_change;
+    }
+    function price_change() {
+        document.getElementById("paymenterr").textContent = "";
+    }
+    function info_submit() {
+        if (!form.price.value) {
+            document.getElementById("paymenterr").textContent = "* поле заполнено неверно, cделайте выбор типа размещения, пожалуйста!";
+            return false;
+        }
+    } 
+
+    function validateInfoFormArea (eo) {        
+
+        eo=eo||window.event;
+
+        const formTag = document.forms.INFO;
+
+        const AreaField = formTag.elements.area;
+        const AreaValue = AreaField.value;
+        let d = document.getElementById ('ar');
+
+        if (AreaValue == "") {            
+            let span = document.createElement('span');  
+            span.innerHTML = "* поле заполнено неверно, описание сайта не может быть пустым";
+            if (d.classList != "red") {
+                d.appendChild(span);
+            }
+            d.classList.add("red");                                                                             
+        } else {
+            d.querySelector ('span').remove();
+            d.classList.remove ('red');
+        }                 
+    }
+
+    function validateInfoFormReviews (eo) {        
+
+        eo=eo||window.event;
+
+        const formTag = document.forms.INFO;
+
+        const ReviewsField = formTag.elements.reviews;
+        const ReviewsValue = ReviewsField.checked;
+        let d = document.getElementById ('review');
+
+        if (ReviewsValue == "") {
+            let span = document.createElement('span');  
+            span.innerHTML = "* поле заполнено неверно, пожалуйста разрешите добавление отзывов";
+            if (d.classList != "red") {
+                d.appendChild(span);
+            }
+            d.classList.add("red");                                                                             
+        } else {
+            d.querySelector ('span').remove();
+            d.classList.remove ('red');
+        }  
+    }
+
+    function validateInfoFormCatalog (eo) {        
+
+        eo=eo||window.event;
+
+        const formTag = document.forms.INFO;
+
+        const CatalogField = formTag.elements.catalog;
+        const CatalogValue = CatalogField.value;
+        let d = document.getElementById ('catal');
+
+        if (CatalogValue == 1) {
+            let span = document.createElement('span');  
+            span.innerHTML = "* поле заполнено неверно, рубрика 'здоровье' пока недоступна, пожалуйста выберите другую рубрику";
+            if (d.classList != "red") {
+                d.appendChild(span);
+            }
+            d.classList.add("red");                                                                             
+        } else {
+            d.querySelector ('span').remove();
+            d.classList.remove ('red');
+        } 
+    }
+
+    function validateInfoFormEmail (eo) {        
+
+        eo=eo||window.event;
+
+        const formTag = document.forms.INFO;
+
+        const EmailField = formTag.elements.email;
+        const EmailValue = EmailField.value;
+        let d = document.getElementById ('mail');
+
+        if (! EmailValue.includes ('@')) {
+            let span = document.createElement('span');  
+            span.innerHTML = "* поле заполнено неверно, Email должен содержать '@'";
+            if (d.classList != "red") {
+                d.appendChild(span);
+            }
+            d.classList.add("red");                                                                            
+        } else {
+            d.querySelector ('span').remove();
+            d.classList.remove ('red');
+        } 
+    }
+
+    function validateInfoFormVisitors (eo) {        
+
+        eo=eo||window.event;
+
+        const formTag = document.forms.INFO;
+
+        const VisitorsField = formTag.elements.visitors;
+        const visitorsValue = parseInt (VisitorsField.value);
+        let d = document.getElementById ('visit');
+
+        if (visitorsValue < 0) {
+            let span = document.createElement('span');  
+            span.innerHTML = "* поле заполнено неверно, количество посетителей не может быть меньше '0'";
+            if (d.classList != "red") {
+                d.appendChild(span);
+            }
+            d.classList.add("red");                                                                             
+        } else {
+            d.querySelector ('span').remove();
+            d.classList.remove ('red');
+        } 
+    }
+
+    function validateInfoFormDate (eo) {        
+
+        eo=eo||window.event;
+
+        const formTag = document.forms.INFO;
+
+        const DateField = formTag.elements.date;
+        const DateValue = DateField.value;
+        let d = document.getElementById ('dat');
+
+        if (DateValue.length > 10 || DateValue =="") {
+            let span = document.createElement('span');  
+            span.innerHTML = "* поле заполнено неверно, в дате не может быть больше 8 цифр, дата должна быть указана";
+            if (d.classList != "red") {
+                d.appendChild(span);
+            }
+            d.classList.add("red");                                                                           
+        } else {
+            d.querySelector ('span').remove();
+            d.classList.remove ('red');
+        } 
+    }
+
+    function validateInfoFormurl (eo) {        
+
+        eo=eo||window.event;
+
+        const formTag = document.forms.INFO;
+
+        const urlField = formTag.elements.URL;
+        const urlValue = urlField.value;
+        let d = document.getElementById ('url');
+
+        if (urlValue.length>10|| urlValue=="") {
+            let span = document.createElement('span');  
+            span.innerHTML = "* поле заполнено неверно, поле не может быть пустым и не может быть длиннее 10 символов";
+            if (d.classList != "red") {
+                d.appendChild(span);
+            }
+            d.classList.add("red");                                                                          
+        } else {
+            d.querySelector ('span').remove();
+            d.classList.remove ('red');
+        }    
+    }
+    
+    function validateInfoFormDevelopers (eo) {        
+
+        eo=eo||window.event;
+
+        const formTag = document.forms.INFO;
+
+        const DevelopersField = formTag.elements.developers;
+        const DevelopersValue = DevelopersField.value;
+        let d = document.getElementById ('dev');
+
+        if (DevelopersValue.length>25|| DevelopersValue=="") {
+            let span = document.createElement('span');  
+            span.innerHTML = "* поле заполнено неверно, поле не может быть пустым и не может быть длиннее 25 символов";
+            if (d.classList != "red") {
+                d.appendChild(span);
+            }
+            d.classList.add("red");                                                                             
+        } else {
+            d.querySelector ('span').remove();
+            d.classList.remove ('red');
+        }    
+    }
+    
+    function validateInfoFormNam (eo) {        
+
+        eo=eo||window.event;
+
+        const formTag = document.forms.INFO;
+
+        const NamField = formTag.elements.nam;
+        const NamValue = NamField.value;
+        let d = document.getElementById ('na');
+
+        if (NamValue.length>15|| NamValue=="") {
+                let span = document.createElement('span');  
+                span.innerHTML = "* поле заполнено неверно, поле не может быть пустым и не может быть длиннее 15 символов";
+                if (d.classList != "red") {
+                    d.appendChild(span);
+                }
+                d.classList.add("red");                                                                         
+        } else {
+            d.querySelector ('span').remove();
+            d.classList.remove ('red');
+        } 
+    }      
+
+    function validateInfoForm (eo) {
+        try {
+            eo=eo||window.event;
+
+            const formTag = document.forms.INFO;
+
+            const DevelopersField = formTag.elements.developers;
+            const DevelopersValue = DevelopersField.value;
+
+            const NamField = formTag.elements.nam;
+            const NamValue = NamField.value;
+
+            const urlField = formTag.elements.URL;
+            const urlValue = urlField.value;
+
+            const DateField = formTag.elements.date;
+            const DateValue = DateField.value;
+
+            const VisitorsField = formTag.elements.visitors;
+            const visitorsValue = parseInt (VisitorsField.value);
+
+            const EmailField = formTag.elements.email;
+            const EmailValue = EmailField.value;
+
+            const CatalogField = formTag.elements.catalog;
+            const CatalogValue = CatalogField.value;
+
+            const PriceField = formTag.elements.price;
+            const PriceValue = PriceField.value;
+
+            const ReviewsField = formTag.elements.reviews;
+            const ReviewsValue = ReviewsField.checked;
+
+            const AreaField = formTag.elements.area;
+            const AreaValue = AreaField.value;
+
+            if (AreaValue == "") {
+                let d = document.getElementById ('ar');
+                let span = document.createElement('span');  
+                span.innerHTML = "* поле заполнено неверно, описание сайта не может быть пустым";
+                if (d.classList != "red") {
+                    d.appendChild(span);
+                }
+                d.classList.add("red"); 
+                eo.preventDefault();
+                AreaField.focus();                                                                             
+            }
+
+            if (ReviewsValue == "") {
+                let d = document.getElementById ('review');
+                let span = document.createElement('span');  
+                span.innerHTML = "* поле заполнено неверно, пожалуйста разрешите добавление отзывов";
+                if (d.classList != "red") {
+                    d.appendChild(span);
+                }
+                d.classList.add("red");               
+                eo.preventDefault();
+                document.getElementById('review').scrollIntoView();                                                               
+            }
+
+            if (CatalogValue == 1) {
+                let d = document.getElementById ('catal');
+                let span = document.createElement('span');  
+                span.innerHTML = "* поле заполнено неверно, рубрика 'здоровье' пока недоступна, пожалуйста выберите другую рубрику";
+                if (d.classList != "red") {
+                    d.appendChild(span);
+                }
+                d.classList.add("red");               
+                eo.preventDefault();
+                CatalogField.focus();                                                               
+            }
+
+            if (! EmailValue.includes ('@')) {
+                let d = document.getElementById ('mail');
+                let span = document.createElement('span');  
+                span.innerHTML = "* поле заполнено неверно, Email должен содержать '@'";
+                if (d.classList != "red") {
+                    d.appendChild(span);
+                }
+                d.classList.add("red");               
+                eo.preventDefault();
+                EmailField.focus();                                                               
+            }
+
+            if (visitorsValue < 0) {
+                let d = document.getElementById ('visit');
+                let span = document.createElement('span');  
+                span.innerHTML = "* поле заполнено неверно, количество посетителей не может быть меньше '0'";
+                if (d.classList != "red") {
+                    d.appendChild(span);
+                }
+                d.classList.add("red");               
+                eo.preventDefault();
+                VisitorsField.focus();                                                               
+            }
+
+            if (DateValue.length > 10 || DateValue =="") {
+                let d = document.getElementById ('dat');
+                let span = document.createElement('span');  
+                span.innerHTML = "* поле заполнено неверно, в дате не может быть больше 8 цифр, дата должна быть указана";
+                if (d.classList != "red") {
+                    d.appendChild(span);
+                }
+                d.classList.add("red");               
+                eo.preventDefault();
+                DateField.focus();                                                               
+            }
+
+            if (urlValue.length>10|| urlValue=="") {
+                let d = document.getElementById ('url');
+                let span = document.createElement('span');  
+                span.innerHTML = "* поле заполнено неверно, поле не может быть пустым и не может быть длиннее 10 символов";
+                if (d.classList != "red") {
+                    d.appendChild(span);
+                }
+                d.classList.add("red");               
+                eo.preventDefault();
+                urlField.focus();                                                               
+            } 
+
+            if (NamValue.length>15|| NamValue=="") {
+                let d = document.getElementById ('na');
+                let span = document.createElement('span');  
+                span.innerHTML = "* поле заполнено неверно, поле не может быть пустым и не может быть длиннее 15 символов";
+                if (d.classList != "red") {
+                    d.appendChild(span);
+                }
+                d.classList.add("red");               
+                eo.preventDefault();
+                NamField.focus();                                                               
+            }
+
+            if (DevelopersValue.length>25|| DevelopersValue=="") {
+                let d = document.getElementById ('dev');
+                let span = document.createElement('span');  
+                span.innerHTML = "* поле заполнено неверно, поле не может быть пустым и не может быть длиннее 25 символов";
+                if (d.classList != "red") {
+                    d.appendChild(span);
+                }
+                d.classList.add("red");               
+                eo.preventDefault();
+                DevelopersField.focus();                                                               
+            }   
+
+            var Count=0;
+            var elemsRadio = INFO.elements.price;
+
+                for(let elemRadio of elemsRadio){if (elemRadio.checked){Count=1}};
+                if (Count == 0)  {
+                    eo.preventDefault(); document.getElementById('paymenterr').innerHTML = '* поле заполнено неверно, cделайте выбор типа размещения, пожалуйста!'; 
+                    document.getElementById('paymenterr').style.cssText = 'color: red';
+                    document.getElementById('paymenterr').scrollIntoView();
+                } 
+                else{document.getElementById('paymenterr').innerHTML=''}
+
+        }
+        catch (ex) {
+            alert ('форма заполнена неверно, пожалуйста заполните форму заново');
+            eo.preventDefault();
+        }
+    }
+</script>

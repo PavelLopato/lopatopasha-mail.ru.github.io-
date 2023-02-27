@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>volleyball</title>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+ 
+<style>
+
+#canvas {
+    width: 100%;
+    height: 100%;
+    background-image: url(images/beach.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+body, html
+{
+    width: 100%;
+    height: 100%;
+    padding: 0px;
+    margin: 0px;
+    overflow: hidden;
+}
+ 
+.wrapper
+{
+    width: 100%;
+    height: 100%;
+}
+ 
+</style>  
+<script>
+  const mygrid_w = 40;
+  const mygrid_h = 40;
+
+  const W = 600;
+  const H = 400;
+  const W_BALL = 30;
+  const H_BALL = 30;
+  const X_BALL = W/2;
+  const Y_BALL = H-230; //от высоты экрана отнимаем высоту сетки и высоту мяча
+  const R_BALL = W_BALL/2;
+  const W_mygrid = 10;
+  const H_mygrid = 200;
+  const H_player = 60;
+  const W_player = 25;
+  const stateG = 3; //0-конец игры( один из игроков набрал 15 очков), 1-подает первый игрок, 2-подает 2й игрок.3-начало игры
+	const state1 = 0; //0-игрок 1 в начальном положении, 1-игрок 1 летит вверх, 2-летит вниз 
+  const state2 = 0; //0-игрок 2 в начальном положении, 1-игрок 2 летит вверх, 2-летит вниз
+  const stateB = 3; //0-мяч летит вверх, 1- мяч летит вниз;2-мяч лежит на земле;3-начальное
+  
+
+
+  var RAF = 
+  // находим, какой метод доступен
+  window.requestAnimationFrame ||
+  window.webkitRequestAnimationFrame ||
+  window.mozRequestAnimationFrame ||
+  window.oRequestAnimationFrame ||
+  window.msRequestAnimationFrame ||
+  // ни один не доступен
+  // будем работать просто по таймеру
+  function(callback) { 
+    window.setTimeout(callback, 1000 / 60); 
+  }
+  
+var canvas = document.getElementById('canvas');
+canvas.width = W;
+canvas.height = H;
+var ctx = canvas.getContext('2d');
+
+function clearAll() {
+  ctx.clearRect(0,0,W,H);
+}
+
+function drawRect(x,y,w,h,color) {
+  ctx.beginPath();
+  ctx.fillStyle = color;
+  ctx.fillRect(x,y,w,h);
+  ctx.strokeRect(x,y,w,h);
+  ctx.closePath();
+}
+
+function drawCircle(x,y,r,color) {
+  ctx.beginPath();
+  ctx.fillStyle = color;
+  ctx.arc(x, y, r, 0, Math.PI*2, false);
+  ctx.fill();
+  ctx.closePath();
+}
+
+
+// Создаем сетку
+var mygrid= {
+  width: W_mygrid,
+  height: H_mygrid,
+  posX: W/2-W_mygrid/2,
+  posY: H-H_mygrid,
+  speed: 0,
+  color: 'blue',
+  score: 0,
+
+  draw: function(){
+    drawRect(this.posX,this.posY,this.width,this.height,this.color)
+  },
+}
+
+// Создаем мяч
+var ball = {
+  posX: X_BALL,
+  posY: Y_BALL,
+  radius: R_BALL,
+  speedX: 0,
+  speedY: 0,
+  accelX: 0,
+  accelY: 0,
+  color: 'red',
+
+  draw: function() {
+    drawCircle(this.posX,this.posY,this.radius,this.color);
+  },
+
+  run: function() {
+    var numPool = [-3, 3];
+    var rand = numPool[Math.floor(Math.random() * numPool.length)];
+    var rand1 = numPool[Math.floor(Math.random() * numPool.length)];
+    this.posX = W/2-W_BALL/2;
+    this.posY = H-H_mygrid-H_BALL;
+    this.speedX = rand;
+    this.speedY = rand1;
+  }
+}
+
+// Создаем правого игрока
+var R_player= {
+  width: W_player,
+  height: H_player,
+  posX: W/2+W/4-W_player/2,
+  posY: H-H_player-H_BALL/2,
+  speedX: 0,
+  speedY: 0,
+  color: 'yellow',
+  score: 0,
+
+  draw: function(){
+    drawRect(this.posX,this.posY,this.width,this.height,this.color)
+  },
+
+  updateScore:  function() {
+    var counter = document.getElementById('Rr2');
+    counter.innerHTML = this.score;
+  }
+}
+
+// Создаем левого игрока
+var L_player= {
+  width: W_player,
+  height: H_player,
+  posX: W/4-W_player/2,
+  posY: H-H_player-H_BALL/2,
+  speedX: 0,
+  speedY: 0,
+  color: 'green',
+  score: 0,
+
+  draw: function(){
+    drawRect(this.posX,this.posY,this.width,this.height,this.color)
+  },
+
+  updateScore:  function() {
+    var counter = document.getElementById('Rr2');
+    counter.innerHTML = this.score;
+  }
+}
+
+document.onkeydown = function(e) {
+    // a-влево
+    if(e.keyCode === 65) {
+      L_player.speedX = -2;  
+    }
+    // d-вправо
+    if(e.keyCode === 68) {
+      L_player.speedX = 2;
+    }
+    // w-прыжок
+  if (L_player.posY === H-H_player-H_BALL/2){
+    if(e.keyCode === 87) {
+      L_player.speedY = -6;
+    }
+  }
+    // стрелка вверх-прыжок
+  if (R_player.posY === H-H_player-H_BALL/2){
+    if(e.keyCode === 38) {
+      R_player.speedY = -6;
+    }
+  }
+    // стрелка влево-влево
+    if(e.keyCode === 37) {
+      R_player.speedX = -2;
+    }
+    // стрелка в право-вправо
+    if(e.keyCode === 39) {
+      R_player.speedX = 2;
+    } 
+  }
+
+  document.onkeyup = function(e) {
+    // a-влево
+    if(e.keyCode === 65) {
+      L_player.speedX = 0;
+    }
+    // d-влево
+    if(e.keyCode === 68) {
+      L_player.speedX = 0;
+    }
+    // стрелка влево-влево
+    if(e.keyCode === 37) {
+      R_player.speedX = 0;
+    }
+    // стрелка в право-вправо
+    if(e.keyCode === 39) {
+      R_player.speedX = 0;
+    } 
+  }
+
+// Отрисовка игрового процесса
+function tick() {
+
+  // движение мяча
+
+  ball.speedX+=ball.accelX;
+  ball.posX+=ball.speedX;
+
+  ball.speedY+=ball.accelY;
+  ball.posY+=ball.speedY
+
+  // Движение игроков
+  L_player.posX += L_player.speedX;
+  L_player.posY += L_player.speedY;
+
+  R_player.posX += R_player.speedX;
+  R_player.posY += R_player.speedY;
+
+// столкновение первого игрока и мяча правой стороной
+if (L_player.posX + W_player >= ball.posX - R_BALL){
+  if (L_player.posY <= ball.posY + R_BALL){
+    ball.speedX = L_player.speedX;
+    ball.accelY = 0.05;
+  }
+}
+
+// столкновение первого игрока и мяча левой стороной
+if (L_player.posX >= ball.posX + R_BALL){
+  if (L_player.posY <= ball.posY + R_BALL){
+    ball.speedX = -L_player.speedX;
+    ball.accelY = 0.05;
+  }
+}
+/*
+// столкновение первого игрока и мяча левой стороной
+if (L_player.posY >= ball.posY + R_BALL){
+  if (L_player.posX + W_player >= ball.posX){
+    ball.speedX = L_player.speedX;
+    ball.accelY = -0.05;
+  }
+}
+*/
+
+// игрок долетел до максимальной высоты прыжка 
+  if(L_player.posY<H_mygrid-H_player) {
+    L_player.speedY=-L_player.speedY;
+  }
+  if(R_player.posY<=H_mygrid-H_player) {
+    R_player.speedY=-R_player.speedY;
+  }
+  // оьязательно дописать условие, чтобы нельзя было второй раз прыгнуть, пока не преземлишься
+
+
+// игрок приземлился
+  if (L_player.posY > H  - H_player - H_BALL/2 ) {
+    L_player.posY=H-H_player-H_BALL/2;
+  }
+  if (R_player.posY > H  - H_player - H_BALL/2 ) {
+    R_player.posY=H-H_player-H_BALL/2;
+  }
+
+// вылетел ли первый игрок левее стены?
+if (L_player.posX<0 ) {
+  L_player.posX=0;
+}
+
+// вылетел ли первый игрок правее сетки?
+/*if (L_player.posX > W/2-W_mygrid/2 - W_player) {
+  L_player.posX = W/2-W_mygrid/2 - W_player;
+}  */
+
+// вылетел ли второй игрок правее стены?
+if (R_player.posX > W - W_player) {
+  R_player.posX = W - W_player;
+} 
+
+// вылетел ли второй игрок левее сетки?
+if (R_player.posX < W/2-W_mygrid/2 + W_mygrid) {
+  R_player.posX = W/2-W_mygrid/2 + W_mygrid;
+} 
+
+
+  
+
+
+
+
+
+  clearAll();
+
+  mygrid.draw();
+  ball.draw();
+  R_player.draw();
+  L_player.draw();
+
+  RAF(tick);  
+
+}
+
+tick();   
+
+
+
+
+
+
+/*
+ 
+   //полет мяча
+	// вверх
+	if (BallSpeedY > 0 && stateB == 0) {
+		BallSpeedY *= accelY;
+	}
+	//вниз
+	if (BallSpeedY < 0 && stateB == 1) {
+		BallSpeedY /= accelY;
+	}
+	//верхняя точка
+	if (BallSpeedY < 0.8 && stateB == 0) {
+		BallSpeedY = - BallSpeedY;
+		stateB = 1;
+	}
+	//отталкивание от стенок
+	if (BallX < -CanvasWidth / 2 + BallR)
+		BallSpeedX = -BallSpeedX;
+	if (BallX > CanvasWidth / 2 - BallR)
+		BallSpeedX = -BallSpeedX;
+	if (BallY > CanvasHeight)
+		BallSpeedY = -BallSpeedY;
+
+	//отталкивание от сетки слево 
+	if (BallX > - GridW / 2 - BallR && BallX < GridW / 2 - BallR && BallY < -CanvasHeight / 6 + BallR / 2) {
+		BallSpeedX = -BallSpeedX;
+		BallX = - BallR - GridW / 2;
+	}
+	//отталкивание от сетки справа 
+	if (BallX > - GridW / 2 + BallR && BallX < GridW / 2 + BallR && BallY < - CanvasHeight / 6 + BallR / 2) {
+		BallSpeedX = -BallSpeedX;
+		BallX = BallR + GridW / 2;
+	}
+	//отталкивание от верха сетки
+	if ((BallX < 0 && BallX > - BallR && BallY < -CanvasHeight / 6 + BallR && amthit2 == 0 && stateB == 1) || (BallX > 0 && BallX < BallR && BallY < -CanvasHeight / 6 + BallR && amthit1 == 0 && stateB == 1)) {
+		BallY = -CanvasHeight / 6 + BallR;
+		BallSpeedY = -BallSpeedY;
+		stateB = 0;
+	}
+	//падение на землю
+	if (BallY <= CanvasHeight / 3 - BallR - (0.9 * CanvasHeight - 2 * R2)) {
+		BallY = CanvasHeight / 3 - BallR - (0.9 * CanvasHeight - 2 * R2)
+		if (BallX > 0)
+			Goal1()
+		if (BallX < 0)
+			Goal2()
+	}
+
+ * /
+
+
+
+
+
+
+
+
+
+/*
+// Отрисовка игрового процесса
+function tick() {
+
+// Движение ракеток
+L_player.posY += L_player.speed;
+R_player.posY += R_player.speed;
+
+// Вышла ли ракетка выше стены?
+if(L_player.posY<=0) {
+  L_player.posY = 0;
+}
+if(R_player.posY<=0) {
+  R_player.posY = 0;
+}
+
+// Вышла ли ракетка ниже стены?
+if ( L_player.posY+L_player.height>field.height ) {
+  L_player.posY=field.height-L_player.height;
+}
+if ( R_player.posY+R_player.height>field.height ) {
+  R_player.posY=field.height-R_player.height;
+}
+
+// Движение шарика
+ball.posX+=ball.speedX;
+ball.posY+=ball.speedY;
+
+// вылетел ли мяч правее стены?
+if ( ball.posX+ball.radius>field.width ) {
+  ball.speedX=0;
+  ball.speedY=0;
+  ball.posX=field.width-ball.radius;
+  L_player.score++;
+  L_player.updateScore();
+}
+
+// ударился ли мяч о правую ракетку?
+if ( ball.posX+ball.radius >= R_player.posX && ball.posX <= R_player.posX + R_player.width ) {
+  if ( ball.posY >= R_player.posY && ball.posY <= R_player.posY + R_player.height ) {
+  ball.speedX=-ball.speedX;
+  }
+}
+
+// вылетел ли мяч левее стены?
+if ( ball.posX-ball.radius<0 ) {
+  ball.speedX=0;
+  ball.speedY=0;
+  ball.posX=0+ball.radius;
+  R_player.score++;
+  R_player.updateScore();
+}
+
+// ударился ли мяч о левую ракетку?
+if ( ball.posX-ball.radius <= L_player.posX+L_player.width) {
+  if ( ball.posY+ball.radius >= L_player.posY && ball.posY-ball.radius <= L_player.posY + L_player.height ) {
+  ball.speedX=-ball.speedX;
+  }
+} 
+
+// вылетел ли мяч ниже пола?
+if ( ball.posY+ball.radius>field.height ) {
+  ball.speedY=-ball.speedY;
+  ball.posY=field.height-ball.radius;
+}
+
+// вылетел ли мяч выше пола?
+if ( ball.posY-ball.radius<0) {
+  ball.speedY=-ball.speedY;
+  ball.posY=0+ball.radius;
+}
+
+field.draw();
+ball.draw();
+L_player.draw();
+R_player.draw();
+
+RAF(tick);
+}
+tick();
+*/
+
+</script>
+
+
+</body>
+</html>

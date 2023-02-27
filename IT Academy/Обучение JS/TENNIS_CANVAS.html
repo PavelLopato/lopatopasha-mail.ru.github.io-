@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TENNIS_CANVAS</title>
+</head>
+<body>
+  <button id="start" onclick="start()">СТАРТ!</button>
+  <div class="score">
+    <span id='Lr1'>0</span> : <span id='Rr2'>0</span>
+  </div>
+  <canvas id="canvas"></canvas>
+
+<style>
+
+#start {
+  width: 100px;
+  display: block;
+  margin: 0 auto;
+}
+
+.score {
+  font-size: 40px;
+  font-weight: bold;
+  text-align: center;
+}
+
+#canvas {
+  display: block;
+  margin: 0 auto;
+}
+
+</style>  
+
+<script>
+
+"use strict";
+
+const W = 600;
+const H = 400;
+const W_BALL = 20;
+const H_BALL = 20;
+const X_BALL = W/2;
+const Y_BALL = H/2;
+const R_BALL = W_BALL/2;
+const W_BRACKET = 10;
+const H_BRACKET = 80;
+
+var RAF =
+  // находим, какой метод доступен
+  window.requestAnimationFrame ||
+  window.webkitRequestAnimationFrame ||
+  window.mozRequestAnimationFrame ||
+  window.oRequestAnimationFrame ||
+  window.msRequestAnimationFrame ||
+  // ни один не доступен
+  // будем работать просто по таймеру
+  function(callback) { 
+    window.setTimeout(callback, 1000 / 60); 
+  }
+
+// Создаем игровое поле
+var canvas = document.getElementById('canvas');
+canvas.width = W;
+canvas.height = H;
+var ctx = canvas.getContext('2d');
+
+function clearAll() {
+  ctx.clearRect(0,0,W,H);
+}
+
+function drawRect(x,y,w,h,color) {
+  ctx.beginPath();
+  ctx.fillStyle = color;
+  ctx.fillRect(x,y,w,h);
+  ctx.strokeRect(x,y,w,h);
+  ctx.closePath();
+}
+
+function drawCircle(x,y,r,color) {
+  ctx.beginPath();
+  ctx.fillStyle = color;
+  ctx.arc(x, y, r, 0, Math.PI*2, false);
+  ctx.fill();
+  ctx.closePath();
+}
+
+// Создаем поле
+var field = {
+  width: W,
+  height: H,
+  color: 'yellow',
+
+  draw: function() {
+    drawRect(0,0,this.width,this.height,this.color)
+  }
+}
+
+// Создаем мяч
+var ball = {
+  posX: X_BALL,
+  posY: Y_BALL,
+  radius: R_BALL,
+  speedX: 0,
+  speedY: 0,
+  color: 'red',
+
+  draw: function() {
+    drawCircle(this.posX,this.posY,this.radius,this.color);
+  },
+
+  run: function() {
+    var numPool = [-3, 3];
+    var rand = numPool[Math.floor(Math.random() * numPool.length)];
+    var rand1 = numPool[Math.floor(Math.random() * numPool.length)];
+    this.posX = W/2-W_BALL/2;
+    this.posY = H/2-H_BALL/2;
+    this.speedX = rand;
+    this.speedY = rand1;
+  }
+}
+
+// Создаем левого игрока
+var LRacket = {
+  width: W_BRACKET,
+  height: H_BRACKET,
+  posX: 0,
+  posY: H/2-H_BRACKET/2,
+  speed: 0,
+  color: 'green',
+  score: 0,
+
+  draw: function(){
+    drawRect(this.posX,this.posY,this.width,this.height,this.color)
+  },
+
+  updateScore:  function() {
+    var counter = document.getElementById('Lr1');
+    counter.innerHTML = this.score;
+  }
+}
+
+// Создаем правого игрока
+var RRacket= {
+  width: W_BRACKET,
+  height: H_BRACKET,
+  posX: W-W_BRACKET,
+  posY: H/2-H_BRACKET/2,
+  speed: 0,
+  color: 'blue',
+  score: 0,
+
+  draw: function(){
+    drawRect(this.posX,this.posY,this.width,this.height,this.color)
+  },
+
+  updateScore:  function() {
+    var counter = document.getElementById('Rr2');
+    counter.innerHTML = this.score;
+  }
+}
+
+// Пуск шарика
+function start() {
+  ball.run();
+}
+
+document.onkeydown = function(e) {
+    // Shift-вверх
+    if(e.keyCode === 16) {
+      LRacket.speed = -3;  
+    }
+    // Ctrl-вниз
+    if(e.keyCode === 17) {
+      LRacket.speed = 3;
+    }
+    // Up-вверх
+    if(e.keyCode === 38) {
+      RRacket.speed = -3;
+    }
+    // Down-вниз
+    if(e.keyCode === 40) {
+      RRacket.speed = 3;
+    } 
+  }
+
+  document.onkeyup = function(e) {
+    // Shift-вверх
+    if(e.keyCode === 16) {
+      LRacket.speed = 0;
+    }
+    // Ctrl-вниз
+    if(e.keyCode === 17) {
+      LRacket.speed = 0;
+    }
+    // Up-вверх
+    if(e.keyCode === 38) {
+      RRacket.speed = 0;
+    }
+    // Down-вниз
+    if(e.keyCode === 40) {
+      RRacket.speed = 0;
+    } 
+  }
+
+// Отрисовка игрового процесса
+function tick() {
+
+  // Движение ракеток
+  LRacket.posY += LRacket.speed;
+  RRacket.posY += RRacket.speed;
+
+  // Вышла ли ракетка выше стены?
+  if(LRacket.posY<=0) {
+    LRacket.posY = 0;
+  }
+  if(RRacket.posY<=0) {
+    RRacket.posY = 0;
+  }
+
+  // Вышла ли ракетка ниже стены?
+  if ( LRacket.posY+LRacket.height>field.height ) {
+    LRacket.posY=field.height-LRacket.height;
+  }
+  if ( RRacket.posY+RRacket.height>field.height ) {
+    RRacket.posY=field.height-RRacket.height;
+  }
+  
+  // Движение шарика
+  ball.posX+=ball.speedX;
+  ball.posY+=ball.speedY;
+
+  // вылетел ли мяч правее стены?
+  if ( ball.posX+ball.radius>field.width ) {
+    ball.speedX=0;
+    ball.speedY=0;
+    ball.posX=field.width-ball.radius;
+    LRacket.score++;
+    LRacket.updateScore();
+  }
+
+  // ударился ли мяч о правую ракетку?
+  if ( ball.posX+ball.radius >= RRacket.posX && ball.posX <= RRacket.posX + RRacket.width ) {
+    if ( ball.posY >= RRacket.posY && ball.posY <= RRacket.posY + RRacket.height ) {
+    ball.speedX=-ball.speedX;
+    }
+  }
+
+  // вылетел ли мяч левее стены?
+  if ( ball.posX-ball.radius<0 ) {
+    ball.speedX=0;
+    ball.speedY=0;
+    ball.posX=0+ball.radius;
+    RRacket.score++;
+    RRacket.updateScore();
+  }
+
+  // ударился ли мяч о левую ракетку?
+  if ( ball.posX-ball.radius <= LRacket.posX+LRacket.width) {
+    if ( ball.posY+ball.radius >= LRacket.posY && ball.posY-ball.radius <= LRacket.posY + LRacket.height ) {
+    ball.speedX=-ball.speedX;
+    }
+  } 
+
+  // вылетел ли мяч ниже пола?
+  if ( ball.posY+ball.radius>field.height ) {
+    ball.speedY=-ball.speedY;
+    ball.posY=field.height-ball.radius;
+  }
+
+  // вылетел ли мяч выше пола?
+  if ( ball.posY-ball.radius<0) {
+    ball.speedY=-ball.speedY;
+    ball.posY=0+ball.radius;
+  }
+
+  field.draw();
+  ball.draw();
+  LRacket.draw();
+  RRacket.draw();
+
+  RAF(tick);
+}
+tick();
+
+</script>
+
+</body>
+</html>

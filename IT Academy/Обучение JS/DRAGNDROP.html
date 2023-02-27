@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset=UTF-8>
+    <title>drag&amp;drop</title>
+  </head>
+<body style='min-height: 100vh'>
+<img src='http://fe.it-academy.by/Sites/0000007/sax.jpg'>
+<img src='http://fe.it-academy.by/Sites/0000007/Yin_and_Yang.png' width=100>
+<img src='http://fe.it-academy.by/Sites/0000007/Man-and-woman.png' width=150>
+<img src='http://fe.it-academy.by/Sites/0000007/No_smoking.png' style='padding-left: 50px'>
+
+<script>
+   
+"use strict";
+
+window.addEventListener("load", event)
+
+function event () {
+
+var images = document.getElementsByTagName('img');
+
+for(var i=0; i<=images.length-1; i++) {
+  var image = images[i];
+  image.style.left = image.offsetLeft + 'px';
+  image.style.top = image.offsetTop + 'px';
+};
+for(var k=0; k<=images.length-1; k++) {
+    image = images[k];
+    image.style.position = 'absolute';
+    image.style.cursor = 'pointer';
+    image.style.margin = '0px';  
+
+    image.addEventListener('mousedown', mouseDown, false)
+
+    image.ondragstart = function() {
+    return false;
+  };                        
+
+}
+
+function mouseDown(eo) {
+  eo = eo||window.event;
+  var elem = eo.target;
+  var posElem = getElementPos(elem);
+  var offsetX = eo.pageX - posElem.left;
+  var offsetY = eo.pageY - posElem.top;
+
+  document.body.appendChild(elem);
+
+  function moveElem(eo) {
+    elem.style.left = eo.pageX - offsetX + 'px';
+    elem.style.top = eo.pageY - offsetY + 'px';
+  }
+
+  document.onmousemove = function(eo) {
+    eo = eo||window.event;
+    moveElem(eo);
+  };
+
+  elem.onmouseup = function() {
+    document.onmousemove = null;
+    elem.onmouseup = null;
+  };
+
+}
+
+function getElementPos(elem) {
+  var box=elem.getBoundingClientRect();
+  return {
+      left: box.left+window.pageXOffset,
+      top: box.top+window.pageYOffset
+  };
+}
+}
+
+</script>    
+
+</body>
+</html>
